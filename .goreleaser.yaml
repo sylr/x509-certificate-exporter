@@ -24,6 +24,7 @@ archives:
 nfpms:
 - file_name_template: "{{ .ProjectName }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
   homepage:  https://github.com/sylr/x509-certificate-exporter
+  maintainer: Sylvain Rabot
   formats:
   - deb
   - rpm
