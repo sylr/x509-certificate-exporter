@@ -1,12 +1,18 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
+release:
+  # Repo in which the release will be created.
+  # Default is extracted from the origin remote URL or empty if its private hosted.
+  github:
+    owner: sylr
+    name: x509-certificate-exporter
 before:
   hooks:
   - go mod tidy
 builds:
-- env:
+- main: ./cmd/x509-certificate-exporter
+  env:
   - CGO_ENABLED=0
-  main: ./cmd/x509-certificate-exporter
   goos:
   - linux
   - freebsd
