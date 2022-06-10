@@ -20,7 +20,13 @@ builds:
   - -s -w
 archives:
 - name_template: "{{ .ProjectName }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-  format: binary
+  format: zip
+nfpms:
+- file_name_template: "{{ .ProjectName }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+  homepage:  https://github.com/sylr/x509-certificate-exporter
+  formats:
+  - deb
+  - rpm
 checksum:
   name_template: '{{ .ProjectName }}-v{{ .Version }}-checksums.txt'
 snapshot:
