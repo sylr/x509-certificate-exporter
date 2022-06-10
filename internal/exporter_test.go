@@ -749,9 +749,6 @@ func checkLabels(t *testing.T, labels []*model.LabelPair, path string, isKube bo
 
 func testRequest(t *testing.T, exporter *Exporter, cb func(metrics []model.MetricFamily)) {
 	exporter.ListenAddress = listenAddress
-	if exporter.KubeSecretTypes == nil {
-		exporter.KubeSecretTypes = []string{"kubernetes.io/tls:tls.crt"}
-	}
 	exporter.DiscoverCertificates()
 
 	err := exporter.Listen()

@@ -16,7 +16,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/client-go/kubernetes"
 )
 
 // Exporter : Configuration (from command-line)
@@ -31,13 +30,7 @@ type Exporter struct {
 	ExposeRelativeMetrics bool
 	ExposeErrorMetrics    bool
 	ExposeLabels          []string
-	KubeSecretTypes       []string
-	KubeIncludeNamespaces []string
-	KubeExcludeNamespaces []string
-	KubeIncludeLabels     []string
-	KubeExcludeLabels     []string
 
-	kubeClient   *kubernetes.Clientset
 	listener     net.Listener
 	handler      *http.Handler
 	server       *http.Server
@@ -158,17 +151,6 @@ func (exporter *Exporter) parseAllCertificates() ([]*certificateRef, []*certific
 		}
 	}
 
-	if exporter.kubeClient != nil {
-		certs, errs := exporter.parseAllKubeSecrets()
-		output = append(output, certs...)
-		for _, err := range errs {
-			raiseError(&certificateError{
-				err: err,
-			})
-		}
-	}
-
-	output = unique(output)
 	for _, cert := range output {
 		err := cert.parse()
 
@@ -276,7 +258,6 @@ func (exporter *Exporter) getBaseLabels(ref *certificateRef) map[string]string {
 	} else {
 		labels["secret_name"] = filepath.Base(ref.path)
 		labels["secret_namespace"] = strings.Split(ref.path, "/")[1]
-		labels["secret_key"] = ref.kubeSecretKey
 	}
 
 	return labels

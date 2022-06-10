@@ -2,3 +2,4 @@
 *.debug
 coverage.html
 /kubeconfig*
+/x509-certificate-exporter

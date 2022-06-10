@@ -12,7 +12,6 @@ import (
 
 	"github.com/yalp/jsonpath"
 	"gopkg.in/yaml.v3"
-	v1 "k8s.io/api/core/v1"
 )
 
 // YAMLCertRef : Contains information to access certificates in yaml files
@@ -56,13 +55,11 @@ var DefaultYamlPaths = []YAMLCertRef{
 }
 
 type certificateRef struct {
-	path          string
-	format        certificateFormat
-	certificates  []*parsedCertificate
-	userIDs       []string
-	yamlPaths     []YAMLCertRef
-	kubeSecret    v1.Secret
-	kubeSecretKey string
+	path         string
+	format       certificateFormat
+	certificates []*parsedCertificate
+	userIDs      []string
+	yamlPaths    []YAMLCertRef
 }
 
 type parsedCertificate struct {
@@ -92,8 +89,6 @@ func (cert *certificateRef) parse() error {
 		cert.certificates, err = readAndParsePEMFile(cert.path)
 	case certificateFormatYAML:
 		cert.certificates, err = readAndParseYAMLFile(cert.path, cert.yamlPaths)
-	case certificateFormatKubeSecret:
-		cert.certificates, err = readAndParseKubeSecret(&cert.kubeSecret, cert.kubeSecretKey)
 	}
 
 	return err
@@ -227,22 +222,6 @@ func searchYAMLFile(filename, expr string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to convert yaml element to string: %T", results)
-}
-
-func readAndParseKubeSecret(secret *v1.Secret, key string) ([]*parsedCertificate, error) {
-	certs, err := parsePEM(secret.Data[key])
-	if err != nil {
-		return nil, err
-	}
-
-	output := []*parsedCertificate{}
-	for _, cert := range certs {
-		output = append(output, &parsedCertificate{
-			cert: cert,
-		})
-	}
-
-	return output, nil
 }
 
 func readFile(file string) ([]byte, error) {

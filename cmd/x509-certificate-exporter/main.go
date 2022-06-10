@@ -38,23 +38,6 @@ func main() {
 	yamls := stringArrayFlag{}
 	getopt.FlagLong(&yamls, "watch-kubeconf", 'k', "watch one or more Kubernetes client configuration (kind Config) which contains embedded x509 certificates or PEM file paths")
 
-	kubeEnabled := getopt.BoolLong("watch-kube-secrets", 0, "scrape kubernetes.io/tls secrets and monitor them")
-
-	kubeSecretTypes := stringArrayFlag{}
-	getopt.FlagLong(&kubeSecretTypes, "secret-type", 's', "one or more kubernetes secret type & key to watch (e.g. \"kubernetes.io/tls:tls.crt\"")
-
-	kubeIncludeNamespaces := stringArrayFlag{}
-	getopt.FlagLong(&kubeIncludeNamespaces, "include-namespace", 0, "add the given kube namespace to the watch list (when used, all namespaces are excluded by default)")
-
-	kubeExcludeNamespaces := stringArrayFlag{}
-	getopt.FlagLong(&kubeExcludeNamespaces, "exclude-namespace", 0, "removes the given kube namespace from the watch list (applied after --include-namespace)")
-
-	kubeIncludeLabels := stringArrayFlag{}
-	getopt.FlagLong(&kubeIncludeLabels, "include-label", 0, "add the kube secrets with the given label (or label value if specified) to the watch list (when used, all secrets are excluded by default)")
-
-	kubeExcludeLabels := stringArrayFlag{}
-	getopt.FlagLong(&kubeExcludeLabels, "exclude-label", 0, "removes the kube secrets with the given label (or label value if specified) from the watch list (applied after --include-label)")
-
 	getopt.Parse()
 
 	if *help {
@@ -86,27 +69,10 @@ func main() {
 		MaxCacheDuration:      time.Duration(maxCacheDuration),
 		ExposeRelativeMetrics: *exposeRelativeMetrics,
 		ExposeErrorMetrics:    *exposeErrorMetrics,
-		KubeSecretTypes:       kubeSecretTypes,
-		KubeIncludeNamespaces: kubeIncludeNamespaces,
-		KubeExcludeNamespaces: kubeExcludeNamespaces,
-		KubeIncludeLabels:     kubeIncludeLabels,
-		KubeExcludeLabels:     kubeExcludeLabels,
 	}
 
 	if getopt.Lookup("expose-labels").Seen() {
 		exporter.ExposeLabels = strings.Split(*exposeLabels, ",")
-	}
-
-	if *kubeEnabled {
-		err := exporter.ConnectToKubernetesCluster("")
-		if err != nil {
-			log.Warn(err)
-
-			err = exporter.ConnectToKubernetesCluster(path.Join(os.Getenv("HOME"), ".kube/config"))
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
 	}
 
 	log.Infof("starting %s version %s", path.Base(os.Args[0]), internal.Version)
